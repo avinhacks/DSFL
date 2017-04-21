@@ -1,3 +1,12 @@
+//============================================================================
+// Name        : ExpTree.cpp
+// Author      : Saurabh Narhe
+// Version     : 1.0
+// Copyright   : Your copyright notice
+// Description : Construct an expression tree from postfix expression and perform recursive and
+//                         non-recursive inorder, preorder and postorder treversals
+//============================================================================
+
 #include <iostream>
 using namespace std;
 #define MAX 20
@@ -33,9 +42,12 @@ public :
     int isEmpty();
     int isFull();
 
+    // Validate input Postfix expression
+    int validate(char[]);
+
     // Expression Tree Creation
     int isOp(char);
-    void createTree(char[]);
+    int createTree(char[]);
 
     // Traversal with recursion
     void inOrder(TreeNode *);
@@ -88,26 +100,33 @@ int Tree::isOp(char ch)
         return 0;
 }
 
-void Tree::createTree(char post[])
+int Tree::createTree(char post[])
 {
     int i=0;
-    while(post[i]!='\0')
+    if(validate(post) == 1)
     {
-    	TreeNode *node = new TreeNode();
-    	node->data = post[i];
-        if(isalnum(post[i]))		// character is alphbet or number
-        {
-            push(node);
-        }
-        else									//  character is operator
-        {
-        	node->rightChild = pop();
-        	node->leftChild = pop();
-        	push(node);
-        }
-        i++;
+		while(post[i]!='\0')
+		{
+			TreeNode *node = new TreeNode();
+			node->data = post[i];
+			if(isalnum(post[i]))		// character is alphbet or number
+			{
+				push(node);
+			}
+			else									//  character is operator
+			{
+				node->rightChild = pop();
+				node->leftChild = pop();
+				push(node);
+			}
+			i++;
+		}
+		head = pop();
+	}
+    else
+    {
+    	return 0;
     }
-    head = pop();
 }
 
 void Tree::inOrder(TreeNode *temp)
@@ -177,7 +196,7 @@ void Tree::preOredeWO()
 void Tree::postOredeWO()
 {
 	int i=0;
-	char str[100];
+	char str[50];
 	TreeNode *p = head;
 	while(stackTop!=NULL||p!=NULL)
 	{
@@ -192,7 +211,42 @@ void Tree::postOredeWO()
 	}
 	while(--i>=0)
 	   cout<<"\t"<<str[i];
+}
+int Tree :: validate(char p[50])
+{
 
+	int i=0,cnt=0;
+	while(p[i]!='\0')
+	{
+		if(isalpha(p[i]))
+		{
+			cnt++;
+			i++;
+		}
+		else
+		{
+			cnt--;
+			i++;
+		}
+	}
+	if(cnt==1)
+	return 1;
+	else
+	{
+		if(cnt==0)
+		cout<<"\nInvalid : Operators & Operands are EQUAL";
+		cout<<"\n";
+
+		if(cnt<0)
+		cout<<"\nInvalid : Operators are MORE than Operands";
+		cout<<"\n";
+
+		if(cnt>0)
+		cout<<"\nInvalid : Operands are MORE than Operators";
+		cout<<"\n";
+
+		return 0;
+	}
 }
 
 int main() {
@@ -203,9 +257,9 @@ int main() {
 
     cout<<"\nEnter postfix expression:";
     cin>>post;
-    T.createTree(post);
-
-    do {
+    if(T.createTree(post))
+    do
+    {
         cout<<"\n1.Inorder \n2.Preorder \n3.Postorder \n4.Inorder Non Recursive \n5.Preorder Non Recursive \n6.Postorder Non Recursive \n7.Exit\n";
         cin>>ch;
         switch(ch) {
