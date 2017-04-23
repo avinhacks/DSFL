@@ -1,170 +1,169 @@
 #include<iostream>
-#include<iomanip>
 #include<string.h>
-using namespace std;
-#define INFINITY 999;
+#define MAX 10
+#define INFINITY 999
 
-class graph
+using namespace std;
+
+class Graph
 {
-	char vnames[10][10];
-	int nodes,cost[10][10],spanning[10][10];
-	int visited[10],distance[10], from[10];
-    int source;
-	public:
-	graph();
-	int position(char s[10]);
-	void create_graph();
+	string name[MAX];
+	int nodes, cost[MAX][MAX], from[MAX], distance[MAX], spanning[MAX][MAX], visited[MAX];
+	int source;
+
+public:
+	Graph();
+	void initialise();
+	void accept();
 	void display();
-	void initialize();
+	int position(string);
 	int prims();
 };
 
-graph::graph()
+Graph::Graph()
 {
-	nodes=0;
 	source = 0;
-	for(int i=0;i<10;i++)
-	for(int j=0;j<10;j++)
+	nodes = 0;
+	for(int i=0; i<MAX; i++)
 	{
-		if(i==j)
-		cost[i][j]=0;
-		else
-		cost[i][j]=999;
-
-		spanning[i][j] =0;
+		for(int j=0; j<MAX; j++)
+		{
+			if(i==j)
+				cost[i][j] = 0;
+			else
+				cost[i][j] = INFINITY;
+			spanning[i][j] = 0;
+		}
 	}
 }
-
-void graph::create_graph()
+void Graph::initialise()
 {
-	char start[10],end[10];
-	int wt,i,j, edges;
-	cout<<"Enter no of nodes:";
+	for(int i=0; i<nodes; i++)
+	{
+		visited[i] = 0;
+		from[i] = source;
+		distance[i] = cost[source][i];
+	}
+	distance[source] = 0;
+	visited[source] = 1;
+}
+void Graph::accept()
+{
+	string start, end, temp;
+	int wt, j, k, edges;
+	cout<<"\nEnter no of vertices: ";
 	cin>>nodes;
-	cout<<"\n Enter vertex name: ";
-	for(i=0;i<nodes;i++)
+	cout<<"\nEnter names of nodes: ";
+	for(int i=0; i<nodes; i++)
 	{
-		cin>>vnames[i];
+		cin>>name[i];
 	}
-	cout<<"\nEnter Number of Edges: ";
+
+	cout<<"Enter no. of edges: ";
 	cin>>edges;
-	for(int k=0; k<edges; k++)
+	for(int i=0; i<edges; i++)
 	{
-		cout<<"Enter start and end vertex of the edge: ";
+		cout<<"\nEnter source and destination: ";
 		cin>>start>>end;
-		cout<<"Enter the weight: ";
+		cout<<"Enter weight: ";
 		cin>>wt;
-		i=position(start);
-		j=position(end);
-		cost[j][i]=cost[i][j]=wt;
-	}
-}
 
-void graph::display()
-{
-	int i,j;
-	cout<<"\n Adjacency matrix\n\t";
-	for(i=0;i<nodes;i++)
-		cout<<"\t"<<i;
-	for(i=0;i<nodes;i++)
+		j = position(start);
+		k = position(end);
+
+		cost[j][k] = cost[k][j] = wt;
+	}
+
+	cout<<"\nEnter source vertex: ";
+	cin>>temp;
+
+	source = position(temp);
+
+	while((source<0) || (source>nodes-1))
 	{
-		cout<<"\n\t"<<i;
-		for(j=0;j<nodes;j++)
-		cout<<"\t"<<cost[i][j];
+		cout<<"\nWrong vertex reenter source :";
+		cin>>temp;
+		source = position(temp);
 	}
-	cout << "\n";
 }
-
-int graph::position(char s[10])
+void Graph::display()
+{
+	int i, j;
+	cout<<"\nAdjacency Matrix: \n";
+	for(i=0; i<nodes; i++)
+		cout<<"\t\t"<<name[i];
+	for(i=0; i<nodes; i++)
+	{
+		cout<<"\n"<<name[i];
+		for(j=0; j<nodes; j++)
+		{
+			cout<<"\t\t"<<cost[i][j];
+		}
+	}
+}
+int Graph::position(string str)
 {
 	int i;
-	for(i=0;i<nodes;i++)
-		if(strcmp(vnames[i],s)==0)
+	for(i=0; i<nodes; i++)
+	{
+		if(name[i] == str)
 			break;
+	}
 	return i;
 }
-
-void graph::initialize()
+int  Graph :: prims()
 {
-            for(int i=0;i<nodes;i++)
-            {
-            	from[i] = source;
-                visited[i] = 0;
-                distance[i] = cost[source][i];
-            }
-            distance[source]= 0;
-            visited[source]=1;
+	int u,edges, v, i,mindistance, mincost;
+	initialise();
+	edges = nodes-1;
+	mincost = 0;
+
+	cout<<"\nMinimum Spanning Tree:\n";
+	while(edges > 0)
+	{
+		mindistance = INFINITY;
+
+		//Find minimum distance vertex from tree in distance array
+		for( i=0; i<nodes; i++)
+		{
+			if(visited[i]==0 && distance[i]<mindistance)
+			{
+				mindistance = distance[i];
+				v = i;
+			}
+		}
+		u = from[v];
+
+		//insert edge in spanning tree
+		spanning[u][v] = distance[v];
+		spanning[v][u] = distance[v];
+		edges--;
+		visited[v] = 1;
+
+		//update distance array
+		for(i=0; i<nodes; i++)
+		{
+			if(visited[i]==0 && cost[i][v]<distance[i])
+			{
+				distance[i] = cost[i][v];
+				from[i] = v;
+			}
+		}
+
+		// Display the edge
+		cout<<"\nEdge("<<name[u]<<","<<name[v]<<") = "<<cost[u][v];
+		mincost+=cost[u][v];
+	}
+	return mincost;
 }
-
-int graph :: prims()
-{
-    int u,v,min_distance;
-    int no_of_edges,i,min_cost;
-    char str[10];
-    cout<<"Enter the source vertex\n";
-    cin>>str;
-    source = position(str);
-    while((source<0) || (source>nodes-1)) {
-    	   cout<<"Source vertex should be between 0 and"<<nodes-1<<endl;
-    	   cout<<"Enter the source vertex again\n";
-    	   cin>>str;
-    	   source = position(str);
-    }
-    initialize();
-    min_cost=0;        //cost of spanning tree
-    no_of_edges=nodes-1;        //no. of edges to be added
-    cout << "\n Minimum Spanning Tree:";
-    // MAIN LOGIC
-    while(no_of_edges>0)
-    {
-        //find the vertex at minimum distance from the tree
-        min_distance=INFINITY;
-        for(i=0;i<nodes;i++)
-            if(visited[i]==0&&distance[i]<min_distance)
-            {
-                v=i;
-                min_distance=distance[i];
-            }
-
-        u=from[v];
-
-        //insert the edge in spanning tree
-        spanning[u][v]=distance[v];
-        spanning[v][u]=distance[v];
-        no_of_edges--;
-        visited[v]=1;
-
-        //updated the distance[] array
-        for(i=0;i<nodes;i++)
-            if(visited[i]==0&&cost[i][v]<distance[i])
-            {
-                distance[i]=cost[i][v];
-                from[i]=v;
-            }
-        cout << "\n edge(" << u <<"," << v << ")" << cost[u][v];
-
-
-        min_cost=min_cost+cost[u][v];
-    }
-
-    return(min_cost);
-}
-
-
 
 int main()
 {
-	graph sp;
-	sp.create_graph();
-	sp.display();
-	int cost = sp.prims();
-
-	cout << "\n Cost of minimum spanning tree:"<<cost;
+	Graph g;
+	int cost;
+	g.accept();
+	g.display();
+	cost = g.prims();
+	cout<<"\nCost of MST: "<<cost;
 	return 0;
 }
-
-
-
-
-
-
