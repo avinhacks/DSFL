@@ -3,13 +3,13 @@
 int visited[10];
 using namespace std;
 
-class Alg {
+class Graph {
     int edges,min_cost;
     int min;
     int a,b,u,v,n,i,j,arr[20][20];
     string arr1[10];
 public:
-    Alg() {
+    Graph() {
         edges=1;
         min_cost=0;
     }
@@ -39,10 +39,8 @@ public:
                 if(arr[i][j]==0)
                     arr[i][j]=arr[j][i]=999;
            	}
-
-
         }
-        for(i=0;i<n;i++)
+        for(i=0;i<n;i++)                // for initialing diagonal with 0
             for(j=0;j<n;j++)
                 if(i==j)
             		arr[i][j]=0;
@@ -55,11 +53,11 @@ public:
             }
             cout<<"\n";
         }
-        kruskal(arr,n);
+        kruskal(arr, n);
     }
 };
 
-void Alg::kruskal(int arr[20][20],int n)
+void Graph::kruskal(int arr[20][20],int n)
 {
     while(edges<n)
     {
@@ -78,25 +76,11 @@ void Alg::kruskal(int arr[20][20],int n)
             }
         }
 
-
-    while(visited[u])
-    {
-        u=visited[u];
-        cout<<"visited node "<<u;
-    }
-
-    while(visited[v])
-    {
-        v=visited[v];
-        cout<<"visited node "<<v;
-    }
-
     if(u!=v)
     {
         edges++;
         cout<<"\nDistance between city : "<<arr1[a]<<"->"<<arr1[b]<<" = " <<min<<" kms";
         min_cost=min_cost+min;
-        visited[v]=u;
     }
     arr[a][b]=arr[b][a]=999;
 
@@ -106,6 +90,6 @@ void Alg::kruskal(int arr[20][20],int n)
 
 int main()
 {
-    Alg G;
+    Graph G;
     G.read();
 }
